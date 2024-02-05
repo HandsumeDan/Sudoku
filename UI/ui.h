@@ -2,11 +2,7 @@
 # include <string>
 
 // Computational Constants
-# define MAX_SOLUTION_CONDITIONS 100
-# define MAX_SOLUTES 8
-# define MAX_SOLVENTS 8
-# define CONC_SIZE 110
-# define LINE_INPUT_SIZE 100
+# define MAX_GRIDS 100
 # define NO_VALUE " "
 
 using namespace std;
@@ -16,55 +12,6 @@ using namespace std;
 
 # include <QWidget>
 //# include <QTextToSpeech>
-
-struct fromUIToZPRED
-{string delimiter;
-string* id;
-string files;
-string outputTitle;
-string* pH;
-string* proteinConc;
-string* solvent;
-string* solventConc;
-string* solventConcType;
-string* solute;
-string* soluteConc;
-string* soluteConcType;
-string* temperature;
-string apbs;
-string multivalue;
-string hydropro;
-string msms;
-string msmsAtmTypeNumbers;
-string msmsPdbToXyzr;
-string msmsPdbToXyzrn;
-string pdb2pqr;
-string zpred;
-string maxThreads;
-// Forced Solution Parameters (-1 if not specified)
-string* fdensity;
-string* fviscosity;
-string* fdielectric;
-string* fXsp;
-// Generate Electric Potential Profile
-string* genPotProfile;
-// Use HYDROPRO
-string* useHydropro;
-// Optional Parameters Read File Reference for When Optional Parameters are set (makes .optionalParameters.txt)
-// APBS Output Write Types (; delimited)
-string apbsWriteTypes;
-string dim_x;
-string dim_y;
-string dim_z;
-string pdie;
-// HYDROPRO Calculation Type
-string calcType;
-// PDB2PQR Force Field (PROPKA)
-string forceField;
-// MSMS Parameters
-string lowPntDensity;
-string highPntDensity;
-};
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -129,30 +76,40 @@ class Sudoku
 			bool RUNNING=true;
 			string i_delimiter=",",delimiter=";",lst="",tmp,*tmpStrArr,*tmpStrArr2;
 			if(solveSudoku() == true)
-				{cout<<"Solution:\n"; sudokuGrid();
+				{//cout<<"Solution:\n"; sudokuGrid();
 				// Select Difficulty
-				if(rand()%2==0)
-					{// Either Easy or Medium
-					if(rand()%2==0)
-						{//Easy
-						numPanels=numEasyPanels;
-						difficulty="Easy";}
-					else
-						{// Medium
-						numPanels=numMediumPanels;
-						difficulty="Medium";}
+				res=rand()%5;
+				if(res==0)
+					{// Very Easy
+					numPanels=numVeryEasyPanels;
+					difficulty="Very Easy";
+					numPoints=100;
 					}
-				else
-					{// Either Easy or Hard
-					if(rand()%2==0)
-						{//Easy
-						numPanels=numEasyPanels;
-						difficulty="Easy";}
-					else
-						{// Hard
-						numPanels=numHardPanels;
-						difficulty="Hard";}
+				else if(res==1)
+					{// Easy
+					numPanels=numEasyPanels;
+					difficulty="Easy";
+					numPoints=250;
 					}
+				else if(res==2)
+					{// Medium
+					numPanels=numMediumPanels;
+					difficulty="Medium";
+					numPoints=500;
+					}
+				else if(res==3)
+					{// hard
+					numPanels=numHardPanels;
+					difficulty="Hard";
+					numPoints=1000;
+					}
+				else if(res==4)
+					{// Very Hard
+					numPanels=numVeryHardPanels;
+					difficulty="Very Hard";
+					numPoints=2000;
+					}
+				
 				while(RUNNING)
 					{for(int i=0;i<N;i++)
 						{for(int j=0;j<N;j++)
@@ -176,7 +133,7 @@ class Sudoku
 					delete [] tmpStrArr2;
 					problem[rowVal][colVal]=grid[rowVal][colVal];
 					}
-				cout<<"\n\nProblem:\n"; problemGrid();
+				//cout<<"\n\nProblem:\n"; problemGrid();
 				}
 			else{cout << "No solution exists";}
 			}
@@ -184,9 +141,12 @@ class Sudoku
 	int **grid;
 	int **problem;
 	string difficulty;
+	int numVeryEasyPanels=55;
 	int numEasyPanels=45;
 	int numMediumPanels=35;
 	int numHardPanels=25;
+	int numVeryHardPanels=20;
+	int numPoints;
 
 	bool solveSudoku();
 	bool isValidPlace(int row, int col, int num);
@@ -207,10 +167,18 @@ class UI : public QWidget
 public:
    UI(QWidget *parent = 0);
 	Sudoku sU;
-	QLineEdit* panelLine[9][9];
-	QLabel* panelLabel[9][9];
+	QLineEdit* panelLine[MAX_GRIDS][9][9];
+	QLabel* panelLabel[MAX_GRIDS][9][9];
+	QLabel* scoreLabel;
+	string scoreFile;
+	QTabWidget* scTab;
 public slots:
+	QGroupBox* create_sudokuBox(int tabIndex);
 	void checkSudoku();
+	void defineScore();
+	int getScore();
+	void updateScore(int value);
+	void newSudoku();
 };
 
 //⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁺ ⁻ ⁼ ⁽ ⁾
